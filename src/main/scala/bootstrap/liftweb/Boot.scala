@@ -4,11 +4,13 @@ import java.util.TimeZone
 
 import net.liftweb.common.Full
 import net.liftweb.http.{LiftRules, Req, Html5Properties}
-import net.liftweb.sitemap.{SiteMap, Menu}
+import net.liftweb.sitemap._
 
 object Pages {
 
   val index = Menu("index") / "index"
+
+  val static = Menu("static") / "static" / **
 
 }
 
@@ -23,7 +25,7 @@ class Boot {
 
   def setupMisc : Boot = {
     // where to search snippet
-    LiftRules.addToPackages("io.bann.web")
+    LiftRules.addToPackages("in.vendingmach.web")
 
     /*
      * Show the spinny image when an Ajax call starts
