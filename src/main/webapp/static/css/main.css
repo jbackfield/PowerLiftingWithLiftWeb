@@ -1,0 +1,45 @@
+.vending-machine .closed .machine-display {
+    background-color: #ff0000;
+    height: 600px;
+}
+
+.vending-machine .closed .machine-dispenser {
+    background-color: black;
+    height: 100px;
+}
+
+
+
+
+.vending-machine .closed .machine-operations {
+    background-color: black;
+    height: 600px;
+}
+
+.vending-machine .closed .machine-operations .operation-panel {
+    background-color: #999999;
+    height: 75px;
+}
+
+.vending-machine .closed .machine-operations .operation-selection {
+    height: 30px;
+}
+
+.crud-colors {
+    background-color: #ff0000;
+    color: white;
+}
+
+.diet-crud-colors {
+    background-color: #CCCCCC;
+    color: #ff0000;
+}
+
+.spite-colors {
+    background-color: greenyellow;
+    color: white;
+}
+
+.vending-machine .closed .machine-operations .operation-selection:hover {
+    cursor: pointer;
+}
