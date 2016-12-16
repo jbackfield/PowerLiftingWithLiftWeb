@@ -1,5 +1,6 @@
 package in.vendingmach.web.snippet
 
+import in.vendingmach.web.comet.OperationManager
 import in.vendingmach.web.model.{SpiteDrink, DietCrudDrink, CrudDrink, Drink}
 import net.liftweb.http.{GUIDJsExp, SHtml}
 import net.liftweb.http.js.{JE, JsCmds, JsCmd}
@@ -9,7 +10,7 @@ import net.liftweb.json.{JObject, parseOpt}
 
 import scala.xml.NodeSeq
 
-class VendingMachine {
+object VendingMachine {
 
   println("Vending Machine Initialized")
 
@@ -45,8 +46,14 @@ class VendingMachine {
   def purchase() : NodeSeq = {
     def _purchase(in : String) : JsCmd = parseOpt(in) match {
       case Some(JInt(index)) => purchaseDrink(index toInt) match {
-        case Left(drink) => JE.Call("setVended", "name" -> drink.name : JObject).cmd
-        case Right(message) => JE.Call("setMessage", message).cmd
+        case Left(drink) => {
+          OperationManager ! JE.Call("setVended", "name" -> drink.name : JObject).cmd
+          JsCmds.Noop
+        }
+        case Right(message) => {
+          OperationManager ! JE.Call("setMessage", message).cmd
+          JsCmds.Noop
+        }
       }
       case _ => JsCmds.Alert("Invalid Parameters")
     }
@@ -58,7 +65,8 @@ class VendingMachine {
     def _grabVended() : JsCmd = {
       vendedItem.map(d => {
         vendedItem = None
-        JE.Call(JE.JsVar(JE.Call("$", "#vended").toJsCmd, "addClass").toJsCmd, "hidden").cmd
+        OperationManager ! JE.Call(JE.JsVar(JE.Call("$", "#vended").toJsCmd, "addClass").toJsCmd, "hidden").cmd
+        JsCmds.Noop
       }).getOrElse(JsCmds.Alert("Nothing to grab!"))
     }
     val GUIDJsExp(_, js) = SHtml.ajaxInvoke(_grabVended)
@@ -68,7 +76,7 @@ class VendingMachine {
   def openMachine() : NodeSeq = {
     def _openMachine() : JsCmd = {
       machineOpen = true
-      JE.Call("displayOpenMachine", items.map(d => "count" -> d.length).toList : JArray).cmd
+      OperationManager ! JE.Call("displayOpenMachine", items.map(d => "count" -> d.length).toList : JArray).cmd
     }
     val GUIDJsExp(_, js) = SHtml.ajaxInvoke(_openMachine)
     JsCmds.Script(JsCmds.Function("openMachine", List(), js.cmd))
@@ -77,7 +85,7 @@ class VendingMachine {
   def closeMachine() : NodeSeq = {
     def _closeMachine() : JsCmd = {
       machineOpen = false
-      JE.Call("displayClosedMachine").cmd
+      OperationManager ! JE.Call("displayClosedMachine").cmd
     }
     val GUIDJsExp(_, js) = SHtml.ajaxInvoke(_closeMachine)
     JsCmds.Script(JsCmds.Function("closeMachine", List(), js.cmd))
@@ -97,12 +105,14 @@ class VendingMachine {
 
   def refill() : NodeSeq = {
     def _refill(in : String) : JsCmd = parseOpt(in) match {
-      case Some(JString(t)) => Symbol(t) match {
-        case 'CRUD => refill(0, 1, new CrudDrink())
-        case 'DIETCRUD => refill(2, 3, new DietCrudDrink())
-        case 'SPITE => refill(4, new SpiteDrink())
+      case Some(JString(t)) => {
+        Symbol(t) match {
+          case 'CRUD => refill(0, 1, new CrudDrink())
+          case 'DIETCRUD => refill(2, 3, new DietCrudDrink())
+          case 'SPITE => refill(4, new SpiteDrink())
+        }
+        OperationManager ! JE.Call("displayOpenMachine", items.map(d => "count" -> d.length).toList : JArray).cmd
       }
-      JE.Call("displayOpenMachine", items.map(d => "count" -> d.length).toList : JArray).cmd
       case _ => JsCmds.Alert("Invalid Parameters")
     }
     val GUIDJsExp(_, js) = SHtml.ajaxCall(JE.Stringify(JE.JsVar("type")), _refill)
