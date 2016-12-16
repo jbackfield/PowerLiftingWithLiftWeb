@@ -7,6 +7,8 @@ import net.liftweb.http.js.{JE, JsCmds, JsCmd}
 import net.liftweb.json.JsonAST.{JString, JArray, JInt}
 import net.liftweb.json.JsonDSL._
 import net.liftweb.json.{JObject, parseOpt}
+import net.liftweb.util._
+import Helpers._
 
 import scala.xml.NodeSeq
 
@@ -117,6 +119,26 @@ object VendingMachine {
     }
     val GUIDJsExp(_, js) = SHtml.ajaxCall(JE.Stringify(JE.JsVar("type")), _refill)
     JsCmds.Script(JsCmds.Function("refill", "type" :: Nil, js.cmd))
+  }
+
+  def createDivs(cnt : Int) : NodeSeq = for(i <- 0 until cnt) yield <div class="can-top row"></div>
+
+  def state() : CssSel = {
+    if(machineOpen) {
+      "div .closed [class+]" #> "hidden" &
+        ".vending-machine .open .can-holder-spacer .holder-1 *" #> createDivs(items(0).length) &
+        ".vending-machine .open .can-holder-spacer .holder-2 *" #> createDivs(items(1).length) &
+        ".vending-machine .open .can-holder-spacer .holder-3 *" #> createDivs(items(2).length) &
+        ".vending-machine .open .can-holder-spacer .holder-4 *" #> createDivs(items(3).length) &
+        ".vending-machine .open .can-holder-spacer .holder-5 *" #> createDivs(items(4).length)
+    } else {
+      "div .open [class+]" #> "hidden" & (vendedItem match {
+        case Some(vend : CrudDrink) => "#vended [class+]" #> "crud-colors" & "#vended *" #> "Crud"
+        case Some(vend : DietCrudDrink) => "#vended [class+]" #> "diet-crud-colors" & "#vended *" #> "Diet Crud"
+        case Some(vend : SpiteDrink) => "#vended [class+]" #> "spite-colors" & "#vended *" #> "Spite"
+        case _ => "#vended [class+]" #> "hidden" & "#vended *" #> "Hidden Text"
+      })
+    }
   }
 
 }

@@ -24,7 +24,6 @@ function displayOpenMachine(counts) {
         $(cans[i]).empty();
         for(var x = 0; x < counts[i-1].count; x++) {
             // they don't stack!
-            console.log("Appending");
             $(cans[i]).append("<div class='can-top row'></div>");
         }
     }
