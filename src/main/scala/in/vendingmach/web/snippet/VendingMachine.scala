@@ -3,7 +3,7 @@ package in.vendingmach.web.snippet
 import in.vendingmach.web.model.{SpiteDrink, DietCrudDrink, CrudDrink, Drink}
 import net.liftweb.http.{GUIDJsExp, SHtml}
 import net.liftweb.http.js.{JE, JsCmds, JsCmd}
-import net.liftweb.json.JsonAST.JInt
+import net.liftweb.json.JsonAST.{JString, JArray, JInt}
 import net.liftweb.json.JsonDSL._
 import net.liftweb.json.{JObject, parseOpt}
 
@@ -22,6 +22,8 @@ class VendingMachine {
   )
 
   var vendedItem : Option[Drink] = None
+
+  var machineOpen : Boolean = false
 
   def purchaseDrink(index : Int) : Either[Drink, String] = {
     if(index >= items.length || index < 0) {
@@ -61,6 +63,50 @@ class VendingMachine {
     }
     val GUIDJsExp(_, js) = SHtml.ajaxInvoke(_grabVended)
     JsCmds.Script(JsCmds.Function("grabVended", List(), js.cmd))
+  }
+
+  def openMachine() : NodeSeq = {
+    def _openMachine() : JsCmd = {
+      machineOpen = true
+      JE.Call("displayOpenMachine", items.map(d => "count" -> d.length).toList : JArray).cmd
+    }
+    val GUIDJsExp(_, js) = SHtml.ajaxInvoke(_openMachine)
+    JsCmds.Script(JsCmds.Function("openMachine", List(), js.cmd))
+  }
+
+  def closeMachine() : NodeSeq = {
+    def _closeMachine() : JsCmd = {
+      machineOpen = false
+      JE.Call("displayClosedMachine").cmd
+    }
+    val GUIDJsExp(_, js) = SHtml.ajaxInvoke(_closeMachine)
+    JsCmds.Script(JsCmds.Function("closeMachine", List(), js.cmd))
+  }
+
+  def refill(l : Int, d : => Drink) : Unit = if(items(l).length < 5) {
+    items(l) = items(l) ::: List(d)
+  }
+
+  def refill(l1 : Int, l2 : Int, d : => Drink) : Unit = {
+    refill(if(items(l1).length < items(l2).length) {
+      l1
+    } else {
+      l2
+    }, d)
+  }
+
+  def refill() : NodeSeq = {
+    def _refill(in : String) : JsCmd = parseOpt(in) match {
+      case Some(JString(t)) => Symbol(t) match {
+        case 'CRUD => refill(0, 1, new CrudDrink())
+        case 'DIETCRUD => refill(2, 3, new DietCrudDrink())
+        case 'SPITE => refill(4, new SpiteDrink())
+      }
+      JE.Call("displayOpenMachine", items.map(d => "count" -> d.length).toList : JArray).cmd
+      case _ => JsCmds.Alert("Invalid Parameters")
+    }
+    val GUIDJsExp(_, js) = SHtml.ajaxCall(JE.Stringify(JE.JsVar("type")), _refill)
+    JsCmds.Script(JsCmds.Function("refill", "type" :: Nil, js.cmd))
   }
 
 }

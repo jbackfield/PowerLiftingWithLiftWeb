@@ -16,6 +16,14 @@
     cursor: pointer;
 }
 
+.vending-machine .closed .open-machine-key {
+    background-color: #CCCCCC;
+    border: 1px solid black;
+    border-radius: 5px;
+    height: 20px;
+    cursor: pointer;
+}
+
 
 
 .vending-machine .closed .machine-operations {
@@ -56,5 +64,41 @@
 }
 
 .vending-machine .closed .machine-operations .operation-selection:hover {
+    cursor: pointer;
+}
+
+
+
+
+.vending-machine .open .body {
+    background-color: #999999;
+    height: 600px;
+}
+
+.vending-machine .can-holder {
+    border: 4px solid black;
+    height: 300px;
+    background-color: #333333;
+}
+
+.vending-machine .can-dispenser {
+    border: 4px solid black;
+    height: 100px;
+    background-color: #333333;
+}
+
+.vending-machine .open .can-top {
+    border: 1px solid black;
+    background-color: #CCCCCC;
+    border-radius: 50px;
+    width: 50px;
+    height: 50px;
+}
+
+.vending-machine .open .refill-can {
+    height: 100px;
+}
+
+.vending-machine .open .refill-can:hover {
     cursor: pointer;
 }
