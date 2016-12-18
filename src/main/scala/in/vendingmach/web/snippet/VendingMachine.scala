@@ -1,6 +1,9 @@
 package in.vendingmach.web.snippet
 
+import java.util.Date
+
 import in.vendingmach.web.comet.OperationManager
+import in.vendingmach.web.dao.SessionOperation
 import in.vendingmach.web.model.{SpiteDrink, DietCrudDrink, CrudDrink, Drink}
 import net.liftweb.http.{GUIDJsExp, SHtml}
 import net.liftweb.http.js.{JE, JsCmds, JsCmd}
@@ -45,10 +48,17 @@ object VendingMachine {
     }
   }
 
+  def updateSession(message : String) = {
+    val sess = CurrentSession.is
+    sess.operations.append(SessionOperation.create.action(message).created(new Date()))
+    sess.save
+  }
+
   def purchase() : NodeSeq = {
     def _purchase(in : String) : JsCmd = parseOpt(in) match {
       case Some(JInt(index)) => purchaseDrink(index toInt) match {
         case Left(drink) => {
+          updateSession(s"purchase [${drink.name}]")
           OperationManager ! JE.Call("setVended", "name" -> drink.name : JObject).cmd
           JsCmds.Noop
         }
@@ -66,6 +76,7 @@ object VendingMachine {
   def grabVended() : NodeSeq = {
     def _grabVended() : JsCmd = {
       vendedItem.map(d => {
+        updateSession(s"grabbed drink [${d.name}]")
         vendedItem = None
         OperationManager ! JE.Call(JE.JsVar(JE.Call("$", "#vended").toJsCmd, "addClass").toJsCmd, "hidden").cmd
         JsCmds.Noop
@@ -77,6 +88,7 @@ object VendingMachine {
 
   def openMachine() : NodeSeq = {
     def _openMachine() : JsCmd = {
+      updateSession("opened machine")
       machineOpen = true
       OperationManager ! JE.Call("displayOpenMachine", items.map(d => "count" -> d.length).toList : JArray).cmd
     }
@@ -86,6 +98,7 @@ object VendingMachine {
 
   def closeMachine() : NodeSeq = {
     def _closeMachine() : JsCmd = {
+      updateSession("closed machine")
       machineOpen = false
       OperationManager ! JE.Call("displayClosedMachine").cmd
     }
@@ -94,6 +107,7 @@ object VendingMachine {
   }
 
   def refill(l : Int, d : => Drink) : Unit = if(items(l).length < 5) {
+    updateSession(s"refilled [${d.name}")
     items(l) = items(l) ::: List(d)
   }
 

@@ -1,10 +1,14 @@
 package bootstrap.liftweb
 
-import java.util.TimeZone
+import java.util.{Date, TimeZone}
 
+import in.vendingmach.web.dao.MyDB
+import in.vendingmach.web.snippet.CurrentSession
 import net.liftweb.common.Full
+import net.liftweb.db.DB
 import net.liftweb.http.{LiftRules, Req, Html5Properties}
 import net.liftweb.sitemap._
+import net.liftweb.util.DefaultConnectionIdentifier
 
 object Pages {
 
@@ -15,6 +19,11 @@ object Pages {
 }
 
 class Boot {
+
+  def setupDB : Boot = {
+    DB.defineConnectionManager(DefaultConnectionIdentifier, MyDB)
+    this
+  }
 
   def setupSiteMap : Boot = {
     LiftRules.setSiteMapFunc(() => SiteMap(
@@ -45,12 +54,19 @@ class Boot {
 
     LiftRules.htmlProperties.default.set((r : Req) => new Html5Properties(r.userAgent))
 
+    LiftRules.earlyInStateful.append {
+      case Full(r) => {
+        CurrentSession.is.lastUpdated(new Date()).save
+      }
+      case _ =>
+    }
+
     this
   }
 
   def boot {
     //setupDatabase.setupSiteMap.setupServices.setupMisc
-    setupSiteMap.setupMisc
+    setupDB.setupSiteMap.setupMisc
   }
 
 }
