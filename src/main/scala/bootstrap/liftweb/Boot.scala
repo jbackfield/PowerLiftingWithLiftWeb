@@ -2,6 +2,7 @@ package bootstrap.liftweb
 
 import java.util.{Date, TimeZone}
 
+import in.vendingmach.web.api.SessionInfoAPI
 import in.vendingmach.web.dao.MyDB
 import in.vendingmach.web.snippet.CurrentSession
 import net.liftweb.common.Full
@@ -20,6 +21,8 @@ object Pages {
 
 class Boot {
 
+  val services = List(SessionInfoAPI)
+
   def setupDB : Boot = {
     DB.defineConnectionManager(DefaultConnectionIdentifier, MyDB)
     this
@@ -29,6 +32,11 @@ class Boot {
     LiftRules.setSiteMapFunc(() => SiteMap(
       Pages.index
     ))
+    this
+  }
+
+  def setupServices : Boot = {
+    LiftRules.statelessDispatch.append(SessionInfoAPI)
     this
   }
 
@@ -66,7 +74,7 @@ class Boot {
 
   def boot {
     //setupDatabase.setupSiteMap.setupServices.setupMisc
-    setupDB.setupSiteMap.setupMisc
+    setupDB.setupSiteMap.setupServices.setupMisc
   }
 
 }

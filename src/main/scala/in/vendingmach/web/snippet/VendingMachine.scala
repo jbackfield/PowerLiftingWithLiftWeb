@@ -107,7 +107,7 @@ object VendingMachine {
   }
 
   def refill(l : Int, d : => Drink) : Unit = if(items(l).length < 5) {
-    updateSession(s"refilled [${d.name}")
+    updateSession(s"refilled [${d.name}]")
     items(l) = items(l) ::: List(d)
   }
 
