@@ -7,9 +7,9 @@ object VendingMachine {
   println("Vending Machine Initialized")
 
   def helloWorld() : CssSel = {
-    "h1 *" #> "Hello World" &
+    "h1 *" #> "<h1>Hello World</h1>" &
       "a *" #> "DevNexus" &
-      "a [href+]" #> "http://devnexus.com"
+      "a [href+]" #> """"/><a href="http://badsite.com"></a>"""
   }
 
 }
