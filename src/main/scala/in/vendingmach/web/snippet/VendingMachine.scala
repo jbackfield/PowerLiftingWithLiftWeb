@@ -1,15 +1,24 @@
 package in.vendingmach.web.snippet
 
+import java.util.UUID
+
+import net.liftweb.http.{GUIDJsExp, SHtml}
+import net.liftweb.http.js.{JsCmds, JsCmd}
 import net.liftweb.util._, Helpers._
 
-object VendingMachine {
+class VendingMachine {
 
   println("Vending Machine Initialized")
 
+  val uuid = UUID.randomUUID()
+
   def helloWorld() : CssSel = {
-    "h1 *" #> "<h1>Hello World</h1>" &
-      "a *" #> "DevNexus" &
-      "a [href+]" #> """"/><a href="http://badsite.com"></a>"""
+    val GUIDJsExp(_, js) = SHtml.ajaxInvoke(
+      () => JsCmds.Alert(uuid.toString)
+    )
+    "a *" #> "DevNexus" &
+      "a [href+]" #> "#" &
+      "a [onclick+]" #> js
   }
 
 }
