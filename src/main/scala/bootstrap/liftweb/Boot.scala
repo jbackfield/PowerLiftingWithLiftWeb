@@ -66,7 +66,6 @@ class Boot {
   }
 
   def boot {
-    //setupDatabase.setupSiteMap.setupServices.setupMisc
     setupDB.setupSiteMap.setupMisc
   }
 
