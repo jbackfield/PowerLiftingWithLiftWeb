@@ -17,7 +17,9 @@ object Pages {
   val foo = Menu.param[Foo](
     "foo", // Unique Name
     "Foo", // Link title
-    in => Foo.findByKey(in),
+    in => DB.use(DefaultConnectionIdentifier) { conn => {
+      Foo.findByKey(in)
+    }},
     _.id.get) / "foo"
 
   val static = Menu("static") / "static" / **
