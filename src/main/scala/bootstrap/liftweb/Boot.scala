@@ -1,7 +1,8 @@
 package bootstrap.liftweb
 
-import java.util.TimeZone
+import java.util.{UUID, Calendar, TimeZone}
 
+import in.vendingmach.web.model.Foo
 import net.liftweb.common.Full
 import net.liftweb.http.{LiftRules, Req, Html5Properties}
 import net.liftweb.sitemap._
@@ -9,6 +10,12 @@ import net.liftweb.sitemap._
 object Pages {
 
   val index = Menu("index") / "index"
+
+  val foo = Menu.param[Foo](
+    "foo", // Unique Name
+    "Foo", // Link title
+    in => Full(Foo(UUID.fromString(in), Calendar.getInstance)),
+    _.uuid.toString) / "foo"
 
   val static = Menu("static") / "static" / **
 
@@ -18,7 +25,9 @@ class Boot {
 
   def setupSiteMap : Boot = {
     LiftRules.setSiteMapFunc(() => SiteMap(
-      Pages.index
+      Pages.index,
+      Pages.foo,
+      Pages.static
     ))
     this
   }
