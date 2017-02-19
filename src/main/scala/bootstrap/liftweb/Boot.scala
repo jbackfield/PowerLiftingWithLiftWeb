@@ -17,8 +17,8 @@ object Pages {
   val foo = Menu.param[Foo](
     "foo", // Unique Name
     "Foo", // Link title
-    in => Full(Foo(UUID.fromString(in), Calendar.getInstance)),
-    _.uuid.toString) / "foo"
+    in => Foo.findByKey(in),
+    _.id.get) / "foo"
 
   val static = Menu("static") / "static" / **
 
@@ -27,9 +27,9 @@ object Pages {
 class Boot {
 
   def setupDB : Boot = {
-    DB.defineConnectionManager(DefaultConnectionIdentifier, MyDB) 
-     this
-    }
+    DB.defineConnectionManager(DefaultConnectionIdentifier, MyDB)
+    this
+  }
 
   def setupSiteMap : Boot = {
     LiftRules.setSiteMapFunc(() => SiteMap(
@@ -67,7 +67,7 @@ class Boot {
 
   def boot {
     //setupDatabase.setupSiteMap.setupServices.setupMisc
-    setupSiteMap.setupMisc
+    setupDB.setupSiteMap.setupMisc
   }
 
 }

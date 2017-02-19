@@ -14,11 +14,11 @@ class FooSnippet(foo : Foo) {
 
   def body : CssSel = {
     val GUIDJsExp(_, js) = SHtml.ajaxInvoke(
-      () => JsCmds.Alert(foo.uuid.toString)
+      () => JsCmds.Alert(foo.id.toString)
     )
     ".page-link [href+]" #> Pages.foo.calcHref(foo) &
       "#timestamp [onclick+]" #> js &
-      "#timestamp *" #> formatter.format(foo.created.getTime)
+      "#timestamp *" #> formatter.format(foo.creationDate.get)
   }
 
 }
