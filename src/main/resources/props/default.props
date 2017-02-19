@@ -1,0 +1,3 @@
+jdbc.url=jdbc:mysql://localhost:3306/vendingmachin?serverTimezone=EST
+ jdbc.user=root
+ jdbc.password=
