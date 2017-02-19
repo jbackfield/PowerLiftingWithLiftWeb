@@ -1,12 +1,12 @@
 package bootstrap.liftweb
 
-import java.util.{UUID, Calendar, TimeZone}
+import java.util.{TimeZone}
 
 import in.vendingmach.web.dao.MyDB
 import in.vendingmach.web.model.Foo
 import net.liftweb.common.Full
 import net.liftweb.http.{LiftRules, Req, Html5Properties}
-import net.liftweb.mapper.DB
+import net.liftweb.mapper.{By, DB}
 import net.liftweb.sitemap._
 import net.liftweb.util.DefaultConnectionIdentifier
 
@@ -18,9 +18,9 @@ object Pages {
     "foo", // Unique Name
     "Foo", // Link title
     in => DB.use(DefaultConnectionIdentifier) { conn => {
-      Foo.findByKey(in)
+      Foo.find(By(Foo.uuid, in))
     }},
-    _.id.get) / "foo"
+    _.uuid.get) / "foo"
 
   val static = Menu("static") / "static" / **
 
