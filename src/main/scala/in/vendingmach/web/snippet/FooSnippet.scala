@@ -16,6 +16,23 @@ class FooSnippet(foo : Foo) {
   val formatter = new SimpleDateFormat()
 
   def body : CssSel = {
+    println(Thread.currentThread().getName)
+    Thread.sleep(5000)
+    val GUIDJsExp(_, js) = SHtml.ajaxInvoke(
+      () => {
+        foo.creationDate.set(Calendar.getInstance.getTime)
+        foo.save
+        JsCmds.SetHtml("timestamp", Text(formatter.format(foo.creationDate.get))) &
+          JsCmds.Alert(foo.uuid.toString)
+      }
+    )
+    ".page-link [href+]" #> Pages.foo.calcHref(foo) &
+      "#timestamp [onclick+]" #> js &
+      "#timestamp *" #> formatter.format(foo.creationDate.get)
+  }
+
+  def bodyNoSleep : CssSel = {
+    println(Thread.currentThread().getName)
     val GUIDJsExp(_, js) = SHtml.ajaxInvoke(
       () => {
         foo.creationDate.set(Calendar.getInstance.getTime)
