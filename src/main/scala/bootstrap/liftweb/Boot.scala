@@ -2,6 +2,7 @@ package bootstrap.liftweb
 
 import java.util.{TimeZone}
 
+import in.vendingmach.web.api.FooService
 import in.vendingmach.web.dao.MyDB
 import in.vendingmach.web.model.Foo
 import net.liftweb.common.Full
@@ -28,6 +29,8 @@ object Pages {
 
 class Boot {
 
+  val services = List(FooService)
+
   def setupDB : Boot = {
     DB.defineConnectionManager(DefaultConnectionIdentifier, MyDB)
     this
@@ -39,6 +42,11 @@ class Boot {
       Pages.foo,
       Pages.static
     ))
+    this
+  }
+
+  def setupServices : Boot = {
+    services.foreach(LiftRules.statelessDispatch.append)
     this
   }
 
@@ -68,7 +76,7 @@ class Boot {
   }
 
   def boot {
-    setupDB.setupSiteMap.setupMisc
+    setupDB.setupSiteMap.setupServices.setupMisc
   }
 
 }
